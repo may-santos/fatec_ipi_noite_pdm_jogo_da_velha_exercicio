@@ -1,0 +1,42 @@
+.jogo {
+  display: flex;
+}
+
+.jogo_info {
+  margin-left: 20px;
+}
+
+.quadrado {
+  background: #fff;
+  border: 1px solid #999;
+  font-size: 24px;
+  float: left;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: - 1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
+/* pseudo elemento */
+.linha:after {
+  clear: both;
+  content: "";
+  display: block;
+}
+
+.botoes {
+  margin-top: 30px;
+}
+
+.botoes button {
+  padding: 10px;
+  margin-right: 10px;
+}
+
+.tabuleiro {
+  margin-left: 35%;
+}

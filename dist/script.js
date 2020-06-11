@@ -1,0 +1,183 @@
+class Jogo extends React.Component {
+  render() {
+    return (
+      React.createElement("div", { className: "jogo" },
+      React.createElement("div", { className: "jogo_tabuleiro" },
+      React.createElement(Tabuleiro, { quadrados: Array(9).fill().map((value, pos) => pos) }))));
+
+
+
+  }}
+
+
+class Tabuleiro extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      quadrados: Array(9).fill(null),
+      xIsNext: true };
+
+  }
+
+  render() {
+    // componente enviando via props informações para outro componente.
+
+    return (
+      React.createElement("div", null,
+      React.createElement("div", { className: "tabuleiro" },
+      React.createElement("div", { className: "linha" },
+      this.renderizarQuadrado(0),
+      this.renderizarQuadrado(1),
+      this.renderizarQuadrado(2)),
+
+      React.createElement("div", { className: "linha" },
+      this.renderizarQuadrado(3),
+      this.renderizarQuadrado(4),
+      this.renderizarQuadrado(5)),
+
+      React.createElement("div", { className: "linha" },
+      this.renderizarQuadrado(6),
+      this.renderizarQuadrado(7),
+      this.renderizarQuadrado(8))),
+
+
+      React.createElement("div", { className: "botoes" },
+      React.createElement("button", { className: "limpar_jogo", onClick: () => this.reiniciarJogo() }, "Reiniciar Jogo"),
+      React.createElement("button", { onClick: () => this.jogarAleatorio() }, "Jogo aleatoriamente"),
+      React.createElement("button", { onClick: () => this.jogarAleatorioInteligente() }, "Jogada inteligente"))));
+
+
+
+  }
+
+  // 1. Adicione um botão ao jogo que permite reiniciá-lo, apagando todas as jogadas.
+  reiniciarJogo() {
+    this.setState({ quadrados: Array(9).fill(null) });
+    alert("Jogo reiniciado!");
+  }
+
+  // 2. Adicione um botão ao jogo que, quando clicado, faz uma jogada com o jogador 
+  // da vez, escolhendo uma casa aleatória que esteja vazia.
+  jogarAleatorio() {
+    const quadrados = this.state.quadrados.slice();
+    let min = Math.ceil(0);
+    let max = Math.floor(9);
+    let random = Math.floor(Math.random() * (max - min)) + min;
+
+    while (quadrados[random] !== null && (quadrados.toString().includes(',,') || quadrados[0] == null || quadrados[8] == null)) {
+      random = Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    if (quadrados.toString().includes(',,') || quadrados[0] == null || quadrados[8] == null) {
+      quadrados[random] = this.state.xIsNext ? 'X' : 'O';
+      this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+
+    } else {
+      alert("O JOGO ACABOU!");
+    }
+  }
+
+  // 3. Aprimore o funcionamento do botão descrito no item 2 empregando alguma “inteligência”. 
+  // Faça com que a jogada detecte situações óbvias em que o oponente poderia ganhar. 
+  //Por exemplo, Se na linha de cima existirem dois símbolos X e o jogador da vez for a O, ela deve jogar na linha de cima.
+  // Tente prever os casos mais elementares e caso não exista potencial de ganho para o próxima jogada do oponente,
+  // jogue em uma posição aleatória.
+
+  jogarAleatorioInteligente() {
+    const quadrados = this.state.quadrados.slice();
+    const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+    [6, 4, 2]];
+
+
+    for (let i = 0; i < lines.length; i++) {
+
+      const [a, b, c] = lines[i];
+
+      if (quadrados[a] && quadrados[b] && quadrados[a] == quadrados[b] && quadrados[c] == null) {
+        quadrados[c] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+        break;
+      } else if (quadrados[a] && quadrados[c] && quadrados[a] == quadrados[c] && quadrados[b] == null) {
+        quadrados[b] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+        break;
+      } else if (quadrados[b] && quadrados[c] && quadrados[b] == quadrados[c] && quadrados[a] == null) {
+        quadrados[a] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+        break;
+      } else if (!quadrados[a] && !quadrados[b] && !quadrados[c] || quadrados[a] != quadrados[b] && quadrados[b] != quadrados[c] && quadrados[c] != quadrados[a]) {
+        this.jogarAleatorio();
+      }
+    }
+  }
+
+  renderizarQuadrado(i) {
+    return (
+      React.createElement(Quadrado, {
+        value: this.state.quadrados[i],
+        onClick: () => this.handleClick(i) }));
+
+
+  }
+
+  handleClick(i) {
+    const quadrados = this.state.quadrados.slice();
+    console.log(quadrados);
+    let vencedor = calculateWinner(quadrados);
+    console.log(vencedor);
+    if (vencedor) {
+      alert(vencedor + " ganhou");
+      return;
+    }
+    if (quadrados[i]) {
+      alert("quadrado ocupado!");
+      return;
+    }
+    quadrados[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+  }}
+
+
+function calculateWinner(squares) {
+  const lines = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6]];
+
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+    return null;
+  }
+}
+
+class Quadrado extends React.Component {
+  constructor(props) {
+    super(props); // passa para o react.component  
+  }
+
+  render() {
+    return (
+      React.createElement("button", { className: "quadrado", onClick: () => this.props.onClick() },
+      this.props.value));
+
+
+  }}
+
+
+ReactDOM.render(React.createElement(Jogo, null), document.getElementById("root"));
